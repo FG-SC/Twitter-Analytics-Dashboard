@@ -1,0 +1,31 @@
+# Twitter Analytics Dashboard Requirements
+# Core dependencies for the Streamlit application
+
+# Web Framework
+streamlit>=1.28.0
+
+# Data Manipulation & Analysis
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Visualization
+plotly>=5.15.0
+
+# Natural Language Processing
+textblob>=0.17.1
+
+# Machine Learning (Optional - for trend analysis)
+scikit-learn>=1.3.0
+
+# Word Cloud Generation (Optional - enhanced feature)
+wordcloud>=1.9.2
+matplotlib>=3.7.0
+
+# Additional utilities (if needed)
+# Uncomment if you encounter import errors:
+# Pillow>=9.5.0  # For image processing (wordcloud dependency)
+# nltk>=3.8  # For advanced text processing
+
+# Development dependencies (optional)
+# jupyter>=1.0.0  # For notebook development
+# ipykernel>=6.25.0  # For Jupyter kernel
