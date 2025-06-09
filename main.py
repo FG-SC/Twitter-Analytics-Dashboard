@@ -772,9 +772,9 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
     
     # Categorize sentiment
     def categorize_sentiment(score):
-        if score > 0.1:
+        if score > 0.3:
             return "Positive"
-        elif score < -0.1:
+        elif score < -0.3:
             return "Negative"
         else:
             return "Neutral"
