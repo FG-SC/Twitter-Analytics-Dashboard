@@ -74,7 +74,7 @@ Upload two CSV files to the dashboard:
 
 ### **1. Account Overview**
 
-![image](https://github.com/user-attachments/assets/8bdf8bf5-8319-4796-a920-84cb2894fbed)
+![image](https://github.com/user-attachments/assets/6b4c4e5f-2f65-427c-85a0-264220a2e47e)
 
 - Key performance metrics cards
 - Follower growth visualization
@@ -91,13 +91,16 @@ Upload two CSV files to the dashboard:
 
 ### **3. Engagement Analysis**
 
-![image](https://github.com/user-attachments/assets/72711db7-905c-4c23-8b15-f027f723ea84)
+![image](https://github.com/user-attachments/assets/8bdf8bf5-8319-4796-a920-84cb2894fbed)
 
 - Time series with separate subplots for each metric
 - Engagement rate distribution analysis
 - Daily aggregated performance tracking
 
 ### **4. Time-based Performance**
+
+![image](https://github.com/user-attachments/assets/72711db7-905c-4c23-8b15-f027f723ea84)
+
 - Rainbow-colored day-of-week analysis
 - Optimal posting time recommendations
 - Performance annotations and insights
