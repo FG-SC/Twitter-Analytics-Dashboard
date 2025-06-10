@@ -68,7 +68,7 @@ Upload two CSV files to the dashboard:
 
 ![image](https://github.com/user-attachments/assets/c01675f2-0b7d-4a62-adf4-3dfa4d9a88a6)
 
-### **Step 4: Download Content Data**
+### **Step 3: Download Content Data**
 1. Go to **Content** tab
 2. Select **1 Year** time period
 3. Click the **download button** (📥)
@@ -133,12 +133,6 @@ Upload two CSV files to the dashboard:
 - Normalized characteristic comparison
 - Timing analysis for viral content
 - Actionable insights and recommendations
-
-### **8. Advanced Analytics**
-- Comprehensive insights summary
-- Action recommendations based on data
-- Progress tracking suggestions
-- Performance benchmarking
 
 ## 🤝 Contributing
 
