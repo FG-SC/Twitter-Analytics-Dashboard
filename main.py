@@ -30,6 +30,8 @@ st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page
 st.title("📊 Twitter Analytics Dashboard")
 st.markdown("*Transform your Twitter data into actionable insights*")
 
+st.markdown("Made by [Felipe Gabriel](https://x.com/FelG_research), if you want to contribute, send me an [email](felipe.g.datascience@gmail.com) or a DM on my [LinkedIn](https://www.linkedin.com/in/felipe-gabriel0/)")
+
 # Tutorial Section
 st.header("💼 How to use this dashboard?")
 
