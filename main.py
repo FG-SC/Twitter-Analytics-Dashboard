@@ -38,7 +38,7 @@ with st.expander("📚 **Quick Start Guide - Click to expand**", expanded=True):
     st.markdown("""
     ### **Must have Premium/Professional Features!**
     
-    **1. Access Advanced Analytics:**
+    **Access Advanced Analytics:**
     
     * Go to **Premium** section in sidebar → **Analytics**
     * More detailed metrics available
