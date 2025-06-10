@@ -24,20 +24,84 @@ except ImportError:
     WORDCLOUD_AVAILABLE = False
 
 # Set page config
-st.set_page_config(page_title="Twitter Analytics", layout="wide")
+st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
 
-# Load data with caching
-#@st.cache_data
-#def load_data():
- #   tweets = pd.read_csv('account_analytics_content_2024-11-21_2025-02-19.csv')
-  #  account = pd.read_csv('account_overview_analytics.csv')
-   # return tweets, account
+# Main content
+st.title("📊 Twitter Analytics Dashboard")
+st.markdown("*Transform your Twitter data into actionable insights*")
 
-#tweets_sheet, account_analytics = load_data()
+# Tutorial Section
+st.header("💼 How to use this dashboard?")
 
-tweets_sheet = st.file_uploader("Upload your account_analytics_content data CSV", type=["csv"])
+# Expandable tutorial section
+with st.expander("📚 **Quick Start Guide - Click to expand**", expanded=False):
+    st.markdown("""
+    ### **Must have Premium/Professional Features!**
+    
+    #### **🔧 Twitter Professional Dashboard**
+    **1. Convert to Professional Account:**
+    * Settings → **Your Account** → **Account Information** → **Account Type**  
+    * Switch to **Professional** (free upgrade!)
+    
+    **2. Access Advanced Analytics:**
+    * Go to **Premium** section in sidebar → **Analytics**
+    * More detailed metrics available
+    * Longer historical data retention
+    
+    #### **📥 Enhanced Export Options**
+    * **Longer date ranges** (up to 1 year)
+    * **More detailed metrics** per tweet
+    * **Audience insights** and demographics
+    * **Video performance** data (if applicable)
+    
+    ---
+    
+    ### **📋 Step-by-Step Data Download**
+    
+    #### **Step 1: Go to Premium Section** 
+    * Click on **"Premium"** in your Twitter sidebar
+    
+    #### **Step 2: Click Analytics**
+    * In Premium section, click **"Analytics"**
+    
+    #### **Step 3: Download Overview Data**
+    * Go to **"Overview"** tab
+    * Select **"1Y"** (1 year) time interval  
+    * Click the **download button** (📥) in top-right corner
+    
+    #### **Step 4: Download Content Data**
+    * Go to **"Content"** tab
+    * Select **"1Y"** (1 year) time interval
+    * Click the **download button** (📥) in top-right corner
+    
+    ---
+    
+    ### **📂 Required Files for Dashboard**
+    
+    **You'll need 2 CSV files:**
+    
+    1. **`account_analytics_content_*.csv`** (Tweet-level data)
+       * Columns: Date, Tweet text, Impressions, Likes, Engagements, etc.
+    
+    2. **`account_overview_analytics_*.csv`** (Daily summary data)  
+       * Columns: Date, Total impressions, Total engagements, Followers, etc.
+    
+    **Expected Column Names:**
+    * **Portuguese:** `Data`, `Texto do post`, `Impressões`, `Curtidas`, `Engajamentos`
+    * **English:** `Date`, `Post text`, `Impressions`, `Likes`, `Engagements`
+    """)
+    
+    # Success message
+    st.success("🎉 **Once you have both CSV files, upload them below to start analyzing your Twitter performance!**")
 
-account_analytics = st.file_uploader("Upload your account_overview_analytics performance CSV", type=["csv"])
+st.divider()
+
+# File uploaders section
+st.header("📁 Upload Your Twitter Data")
+
+tweets_sheet = st.file_uploader("📊 Upload your **account_analytics_content** data CSV", type=["csv"], help="This file contains individual tweet performance data")
+
+account_analytics = st.file_uploader("📈 Upload your **account_overview_analytics** performance CSV", type=["csv"], help="This file contains daily account summary data")
 
 # Preprocess data
 if account_analytics is not None:
