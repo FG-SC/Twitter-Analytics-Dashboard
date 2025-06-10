@@ -140,7 +140,7 @@ Upload two CSV files to the dashboard:
 2. Create a feature branch: `git checkout -b feature-name`
 3. Make your changes and test thoroughly
 4. Submit a pull request with detailed description
-5. Send me an email on felipe.g.datascience@gmail.com or a DM on my LinkedIn Profile at https://www.linkedin.com/in/felipe-gabriel0/
+5. Send me an [email](felipe.g.datascience@gmail.com) or a DM on my [LinkedIn](https://www.linkedin.com/in/felipe-gabriel0/) or [X](https://x.com/FelG_research)
 
 ## 📝 License
 
