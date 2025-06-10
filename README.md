@@ -9,18 +9,14 @@ A comprehensive Streamlit application for analyzing your Twitter performance wit
 ## 🚀 Features
 
 ### 📈 **Analytics & Insights**
+
+![image](https://github.com/user-attachments/assets/6177404a-8d92-4950-9003-84c7ff4b0bb4)
+
 - **Post Performance Comparison** - Compare your top posts with interactive grouped bar charts
 - **Time-based Analysis** - Discover optimal posting times and days with rainbow visualizations
 - **Engagement Analysis** - Track likes, reposts, replies, and bookmarks over time
 - **Sentiment Analysis** - Analyze content sentiment with word clouds and performance correlations
 - **Viral Potential Analysis** - Identify what makes your content go viral
-
-### 🎨 **Visual Features**
-- **Interactive Charts** - Powered by Plotly with hover details and zoom capabilities
-- **Word Cloud Generation** - Beautiful word frequency visualizations
-- **Multi-dimensional Bubble Charts** - Size, color, and position encoding for rich insights
-- **Rainbow Color Palettes** - Engaging and accessible color schemes
-- **Responsive Design** - Works on desktop and mobile devices
 
 ### 🔍 **Advanced Analysis**
 - **Content Length Optimization** - Find the perfect tweet length for maximum engagement
