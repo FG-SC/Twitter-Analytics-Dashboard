@@ -34,7 +34,7 @@ st.markdown("*Transform your Twitter data into actionable insights*")
 st.header("💼 How to use this dashboard?")
 
 # Expandable tutorial section
-with st.expander("📚 **Quick Start Guide - Click to expand**", expanded=False):
+with st.expander("📚 **Quick Start Guide - Click to expand**", expanded=True):
     st.markdown("""
     ### **Must have Premium/Professional Features!**
     
