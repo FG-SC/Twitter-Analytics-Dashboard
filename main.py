@@ -38,21 +38,16 @@ with st.expander("📚 **Quick Start Guide - Click to expand**", expanded=True):
     st.markdown("""
     ### **Must have Premium/Professional Features!**
     
-    #### **🔧 Twitter Professional Dashboard**
-    **1. Convert to Professional Account:**
-    * Settings → **Your Account** → **Account Information** → **Account Type**  
-    * Switch to **Professional** (free upgrade!)
+    **1. Access Advanced Analytics:**
     
-    **2. Access Advanced Analytics:**
     * Go to **Premium** section in sidebar → **Analytics**
     * More detailed metrics available
     * Longer historical data retention
     
     #### **📥 Enhanced Export Options**
-    * **Longer date ranges** (up to 1 year)
-    * **More detailed metrics** per tweet
-    * **Audience insights** and demographics
-    * **Video performance** data (if applicable)
+    * **Longer date ranges** (up to 1 year on overview)
+    * **More detailed metrics** per tweet (on content)
+    * **Video performance** data (being developed)
     
     ---
     
