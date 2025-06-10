@@ -54,7 +54,6 @@ Upload two CSV files to the dashboard:
 1. Go to **Premium** section in sidebar
 2. Click **Analytics**
 
-![image](https://github.com/user-attachments/assets/67e9f888-4760-47b9-8ece-7538454b82d6)
 ![image](https://github.com/user-attachments/assets/87d34afb-dbe5-4e01-b729-6bbb3809f8be)
 
 ### **Step 2: Download Overview Data**
