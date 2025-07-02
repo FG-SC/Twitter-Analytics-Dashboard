@@ -50,7 +50,6 @@ def inject_google_analytics():
 
 # Call the injection function at the very beginning of your app script.
 # This ensures it runs whenever the app is loaded or re-executed.
-inject_google_analytics()
 
 
 # Optional imports for advanced features
@@ -71,6 +70,8 @@ except ImportError:
 
 # Set page config
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
+
+inject_google_analytics()
 
 st.title("My Streamlit App")
 st.write("Welcome to my app!")
