@@ -25,9 +25,9 @@ def inject_ga():
     # Replace with your actual Google Analytics 4 (GA4) Measurement ID (e.g., "G-XXXXXXXXXX")
     GA_ID = "G-FTWRJ0W1LW" # <--- IMPORTANT: Replace this!
 
-    if GA_ID == "your_tracking_id":
-        logging.error("Please replace 'your_tracking_id' with your actual Google Analytics 4 Measurement ID.")
-        return
+    # if GA_ID == "your_tracking_id":
+    #     logging.error("Please replace 'your_tracking_id' with your actual Google Analytics 4 Measurement ID.")
+    #     return
 
     GA_JS = f"""
     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
@@ -44,7 +44,7 @@ def inject_ga():
     try:
         # This is a more robust way to find the static directory
         import streamlit as st
-        static_path = Path(st.__file__).parent / "static"
+        static_path = Path(st.__file__) / "static"
         index_path = static_path / "index.html"
 
         if not index_path.exists():
