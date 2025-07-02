@@ -6,6 +6,23 @@ from plotly.subplots import make_subplots
 import re
 from textblob import TextBlob  # For sentiment analysis
 import numpy as np
+import streamlit.components.v1 as components
+
+def inject_google_analytics():
+    # Replace 'YOUR_GA_MEASUREMENT_ID' with your actual GA4 Measurement ID
+    ga_code = """
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-FTWRJ0W1LW"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-FTWRJ0W1LW');
+    </script>
+    """
+    components.html(ga_code, height=0) # height=0 makes it invisible
+
+# Call this function at the beginning of your app.py
+inject_google_analytics()
 
 # Optional imports for advanced features
 try:
@@ -25,6 +42,10 @@ except ImportError:
 
 # Set page config
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
+
+st.title("My Streamlit App")
+st.write("Welcome to my app!")
+# ... your app content ...
 
 # Main content
 st.title("📊 Twitter Analytics Dashboard")
