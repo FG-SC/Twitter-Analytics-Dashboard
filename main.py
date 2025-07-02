@@ -43,7 +43,7 @@ def inject_google_analytics():
     # Use components.html to inject the raw HTML.
     # Setting height=0 makes it invisible, as it's just a script.
     components.html(ga_code, height=0)
-    st.success(f"Google Analytics (ID: {GA_MEASUREMENT_ID}) injected successfully!")
+    #st.success(f"Google Analytics (ID: {GA_MEASUREMENT_ID}) injected successfully!")
 
 
 # --- Your Streamlit App ---
