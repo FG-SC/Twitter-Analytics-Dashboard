@@ -72,6 +72,7 @@ except ImportError:
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
 
 inject_google_analytics()
+st.write(f"GA_MEASUREMENT_ID being used: {GA_MEASUREMENT_ID}")
 
 st.title("My Streamlit App")
 st.write("Welcome to my app!")
