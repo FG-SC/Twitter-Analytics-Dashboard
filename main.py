@@ -7,22 +7,124 @@ import re
 from textblob import TextBlob  # For sentiment analysis
 import numpy as np
 import streamlit.components.v1 as components
+import os
+import shutil
+import logging
+from pathlib import Path
+from bs4 import BeautifulSoup
 
-def inject_google_analytics():
-    # Replace 'YOUR_GA_MEASUREMENT_ID' with your actual GA4 Measurement ID
-    ga_code = """
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-FTWRJ0W1LW"></script>
+# Configure logging for better feedback
+logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+
+def inject_ga():
+    """
+    Injects Google Analytics tracking code into Streamlit's index.html.
+    This method directly modifies Streamlit's core files and is NOT RECOMMENDED
+    for production or deployment due to its fragility.
+    """
+    # Replace with your actual Google Analytics 4 (GA4) Measurement ID (e.g., "G-XXXXXXXXXX")
+    GA_ID = "G-FTWRJ0W1LW" # <--- IMPORTANT: Replace this!
+
+    if GA_ID == "your_tracking_id":
+        logging.error("Please replace 'your_tracking_id' with your actual Google Analytics 4 Measurement ID.")
+        return
+
+    GA_JS = f"""
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_ID}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
+      function gtag(){{dataLayer.push(arguments);}}
       gtag('js', new Date());
-      gtag('config', 'G-FTWRJ0W1LW');
+
+      gtag('config', '{GA_ID}');
     </script>
     """
-    components.html(ga_code, height=0) # height=0 makes it invisible
 
-# Call this function at the beginning of your app.py
-inject_google_analytics()
+    # --- Find Streamlit's static directory and index.html ---
+    try:
+        # This is a more robust way to find the static directory
+        import streamlit as st
+        static_path = Path(st.__file__).parent / "static"
+        index_path = static_path / "index.html"
+
+        if not index_path.exists():
+            logging.error(f"index.html not found at {index_path}. Streamlit installation might be unusual.")
+            return
+
+    except Exception as e:
+        logging.error(f"Could not locate Streamlit's static directory: {e}")
+        logging.info("Please ensure Streamlit is installed and try again.")
+        return
+
+    logging.info(f"Attempting to modify: {index_path}")
+
+    # Read the existing index.html content
+    try:
+        with open(index_path, 'r', encoding='utf-8') as f:
+            soup = BeautifulSoup(f.read(), 'html.parser')
+    except Exception as e:
+        logging.error(f"Error reading {index_path}: {e}")
+        return
+
+    # Check if the GA script is already present (by ID for simpler check)
+    # The image uses a simplified check 'id=GA_ID' which isn't part of gtag.js,
+    # so we'll check for the script source instead for a more reliable check.
+    if soup.find('script', attrs={'src': f'https://www.googletagmanager.com/gtag/js?id={GA_ID}'}):
+        logging.info("Google Analytics script already appears to be injected. No action needed.")
+        return
+
+    # Create a backup of the original index.html
+    bck_index = index_path.with_suffix('.html.bak')
+    if not bck_index.exists():
+        try:
+            shutil.copy(index_path, bck_index)
+            logging.info(f"Created backup of index.html at: {bck_index}")
+        except Exception as e:
+            logging.error(f"Error creating backup of {index_path}: {e}")
+            return
+    else:
+        logging.info(f"Backup file already exists at: {bck_index}")
+
+    # Insert the script into the <head> tag
+    head_tag = soup.find('head')
+    if head_tag:
+        # Convert the GA_JS string to a BeautifulSoup object to insert correctly
+        ga_soup = BeautifulSoup(GA_JS, 'html.parser')
+        head_tag.insert(0, ga_soup) # Insert at the beginning of the head
+
+        new_html_content = str(soup)
+
+        # Write the modified content back to index.html
+        try:
+            with open(index_path, 'w', encoding='utf-8') as f:
+                f.write(new_html_content)
+            logging.info(f"Successfully injected Google Analytics into {index_path}")
+            logging.info("Remember: This modification is not persistent and may be overwritten by Streamlit updates.")
+            logging.info("Please restart your Streamlit app for changes to take effect.")
+        except Exception as e:
+            logging.error(f"Error writing to {index_path}: {e}")
+            logging.error("You might need to run this script with administrator/root privileges.")
+    else:
+        logging.error("Could not find the <head> tag in index.html. Cannot inject Google Analytics.")
+
+# Call the function to perform the injection
+inject_ga()
+
+# def inject_google_analytics():
+#     # Replace 'YOUR_GA_MEASUREMENT_ID' with your actual GA4 Measurement ID
+#     ga_code = """
+#     <script async src="https://www.googletagmanager.com/gtag/js?id=G-FTWRJ0W1LW"></script>
+#     <script>
+#       window.dataLayer = window.dataLayer || [];
+#       function gtag(){dataLayer.push(arguments);}
+#       gtag('js', new Date());
+#       gtag('config', 'G-FTWRJ0W1LW');
+#     </script>
+#     """
+#     components.html(ga_code, height=0) # height=0 makes it invisible
+
+# # Call this function at the beginning of your app.py
+# inject_google_analytics()
 
 # Optional imports for advanced features
 try:
