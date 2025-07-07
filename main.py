@@ -15,6 +15,7 @@ import os
 # You can also get this from an environment variable for better security and deployment practices.
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID", "YOUR_GA_MEASUREMENT_ID")
 
+
 if GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
     st.warning("Please replace 'YOUR_GA_MEASUREMENT_ID' with your actual Google Analytics 4 Measurement ID.")
     st.info("You can also set it as an environment variable named `GA_MEASUREMENT_ID`.")
@@ -45,7 +46,6 @@ def inject_google_analytics():
     components.html(ga_code, height=0)
     #st.success(f"Google Analytics (ID: {GA_MEASUREMENT_ID}) injected successfully!")
 
-
 # --- Your Streamlit App ---
 
 # Call the injection function at the very beginning of your app script.
@@ -70,6 +70,21 @@ except ImportError:
 
 # Set page config
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
+
+
+
+st.markdown(
+    """
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    """,
+    unsafe_allow_html=True
+)
 
 inject_google_analytics()
 
