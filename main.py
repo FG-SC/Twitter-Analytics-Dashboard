@@ -71,25 +71,7 @@ except ImportError:
 # Set page config
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
 
-
-code = f"""<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments)}};
-  gtag('js', new Date());
-  gtag('config', {GA_MEASUREMENT_ID});
-</script>"""
-
-a=os.path.dirname(st.__file__)+'/static/index.html'
-with open(a, 'r') as f:
-    data=f.read()
-    if len(re.findall('UA-', data))==0:
-        with open(a, 'w') as ff:
-            newdata=re.sub('<head>','<head>'+code,data)
-            ff.write(newdata)
-
-# inject_google_analytics()
+inject_google_analytics()
 
 
 
