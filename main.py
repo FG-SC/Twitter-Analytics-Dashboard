@@ -74,19 +74,21 @@ st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page
 
 
 st.markdown(
-    """
-    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    f"""
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'GA_MEASUREMENT_ID');
+      gtag('config', {GA_MEASUREMENT_ID});
     </script>
     """,
     unsafe_allow_html=True
 )
 
-inject_google_analytics()
+# inject_google_analytics()
+
+
 
 st.title("My Streamlit App")
 st.write("Welcome to my app!")
