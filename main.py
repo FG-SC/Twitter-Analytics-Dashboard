@@ -15,6 +15,8 @@ import os
 # You can also get this from an environment variable for better security and deployment practices.
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID", "YOUR_GA_MEASUREMENT_ID")
 
+st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
+
 
 if GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
     st.warning("Please replace 'YOUR_GA_MEASUREMENT_ID' with your actual Google Analytics 4 Measurement ID.")
@@ -69,9 +71,8 @@ except ImportError:
     WORDCLOUD_AVAILABLE = False
 
 # Set page config
-st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
 
-inject_google_analytics()
+#inject_google_analytics()
 
 
 
@@ -166,6 +167,7 @@ if account_analytics is not None:
     elif 'New follows' in account_analytics.columns and 'Unfollows' in account_analytics.columns:
         account_analytics['followers'] = (account_analytics['New follows'] - account_analytics['Unfollows']).cumsum()
 
+
 if tweets_sheet is not None:
     tweets_sheet = pd.read_csv(tweets_sheet)
 
@@ -179,7 +181,8 @@ if tweets_sheet is not None:
 
     tweets_sheet = tweets_sheet.sort_values(by='Date')
 
-if (account_analytics is not None) and (tweets_sheet is not None) :
+
+if (account_analytics is not None) and (tweets_sheet is not None):
         
     # Main content
     st.title("Twitter Analytics Dashboard")
@@ -188,7 +191,7 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
     st.header("Account Overview")
 
     # Key metrics cards - handle both languages
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3, col4, col5 = st.columns(5)
     
     # Determine column names based on language
     if 'Curtidas' in tweets_sheet.columns:
@@ -221,29 +224,36 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         st.metric("Total Impressions", f"{total_impressions:,}")
     
     with col4:
-        avg_engagement_rate = tweets_sheet[engagements_col].sum() / tweets_sheet[impressions_col].sum()
-        st.metric("Avg Engagement Rate", f"{avg_engagement_rate:.2%}")
+        # Add total new followers
+        if not account_analytics.empty and 'New follows' in account_analytics.columns:
+            total_new_followers = account_analytics['New follows'].sum()
+            st.metric("Total New Followers", f"{total_new_followers:,}")
+        elif not account_analytics.empty and 'Novos seguidores' in account_analytics.columns:
+            total_new_followers = account_analytics['Novos seguidores'].sum()
+            st.metric("Total New Followers", f"{total_new_followers:,}")
+        else:
+            st.metric("Total New Followers", "N/A")
+    
+    with col5:
+        # Bug fix: Check for division by zero
+        if total_impressions > 0:
+            avg_engagement_rate = tweets_sheet[engagements_col].sum() / total_impressions
+            st.metric("Avg Engagement Rate", f"{avg_engagement_rate:.2%}")
+        else:
+            st.metric("Avg Engagement Rate", "0%")
 
     # Follower growth chart
-    fig_followers = go.Figure()
-
-    fig_followers.add_trace(go.Scatter(x=account_analytics['Date'], y=account_analytics['followers'],
-                                    mode='lines', name='Followers'))
-    fig_followers.update_layout(title="Follower Growth Over Time",
-                            xaxis_title="Date", yaxis_title="Followers")
-    st.plotly_chart(fig_followers, use_container_width=True)
-
-    # Correlation heatmap using Plotly - handle both languages
-    if 'Impressões' in account_analytics.columns:
-        corr_cols = ['Impressões', 'Curtidas', 'Engajamentos', 'followers']
+    # Bug fix: Check if data exists before plotting
+    if not account_analytics.empty and 'followers' in account_analytics.columns:
+        fig_followers = go.Figure()
+        fig_followers.add_trace(go.Scatter(x=account_analytics['Date'], y=account_analytics['followers'],
+                                        mode='lines', name='Followers'))
+        fig_followers.update_layout(title="Follower Growth Over Time",
+                                xaxis_title="Date", yaxis_title="Followers")
+        st.plotly_chart(fig_followers, use_container_width=True)
     else:
-        corr_cols = ['Impressions', 'Likes', 'Engagements', 'followers']
-    
-    corr_matrix = account_analytics[corr_cols].corr()
-    fig_corr = px.imshow(corr_matrix, text_auto=True, aspect="auto",
-                        labels=dict(x="Metrics", y="Metrics", color="Correlation"),
-                        x=corr_matrix.columns, y=corr_matrix.columns)
-    st.plotly_chart(fig_corr, use_container_width=True)
+        st.warning("Follower growth data not available")
+
 
 
     # Engagement Analysis Section
@@ -558,89 +568,8 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
 
     tweets_sheet['mentions'] = tweets_sheet[post_text_col].apply(
         lambda x: extract_features2(x, r'@(\w+)'))
-    tweets_sheet['hashtags'] = tweets_sheet[post_text_col].apply(
-        lambda x: extract_features(x, r'#(\w+)'))
-
-    # NEW: Hashtag Analysis
-    st.subheader("Hashtag Performance Analysis")
     
-    # Get hashtag counts and performance
-    hashtag_counts = pd.Series([tag for sublist in tweets_sheet['hashtags'] for tag in sublist]).value_counts().head(15)
     
-    if len(hashtag_counts) > 0:
-        # Simple hashtag usage chart with better colors
-        fig_hashtags = px.bar(
-            x=hashtag_counts.index, 
-            y=hashtag_counts.values,
-            labels={'x': 'Hashtag', 'y': 'Usage Count'},
-            title="Top 15 Hashtags by Usage",
-            color=hashtag_counts.values,
-            color_continuous_scale='Viridis'
-        )
-        fig_hashtags.update_layout(
-            xaxis_tickangle=-45,
-            coloraxis_showscale=False,
-            plot_bgcolor='rgba(0,0,0,0)',
-            paper_bgcolor='rgba(0,0,0,0)'
-        )
-        st.plotly_chart(fig_hashtags, use_container_width=True)
-        
-        # Enhanced hashtag impact analysis with multi-dimensional bubble chart
-        hashtag_effect = []
-        for hashtag in hashtag_counts.head(12).index:  # Top 12 for better visualization
-            hashtag_tweets = tweets_sheet[tweets_sheet['hashtags'].apply(lambda x: hashtag in x)]
-            if len(hashtag_tweets) > 1:  # Only include hashtags with multiple uses
-                avg_engagement = hashtag_tweets['engagement_rate'].mean()
-                avg_likes = hashtag_tweets[likes_col].mean()
-                avg_impressions = hashtag_tweets[impressions_col].mean()
-                usage_count = len(hashtag_tweets)
-                hashtag_effect.append({
-                    'Hashtag': f"#{hashtag}", 
-                    'Avg Engagement Rate': avg_engagement,
-                    'Avg Likes': avg_likes,
-                    'Avg Impressions': avg_impressions,
-                    'Usage Count': usage_count
-                })
-        
-        if len(hashtag_effect) > 0:
-            hashtag_effect_df = pd.DataFrame(hashtag_effect)
-            
-            # Multi-dimensional bubble chart
-            fig_hashtag_impact = px.scatter(
-                hashtag_effect_df, 
-                x='Usage Count', 
-                y='Avg Engagement Rate',
-                size='Avg Likes',
-                color='Avg Impressions',
-                hover_data=['Hashtag'],
-                title="Hashtag Performance Matrix",
-                labels={
-                    'Usage Count': 'How Often Used',
-                    'Avg Engagement Rate': 'Average Engagement Rate',
-                    'Avg Likes': 'Average Likes (Bubble Size)',
-                    'Avg Impressions': 'Average Impressions (Color)'
-                },
-                color_continuous_scale='Plasma',
-                size_max=60
-            )
-            
-            fig_hashtag_impact.update_layout(
-                plot_bgcolor='rgba(0,0,0,0)',
-                paper_bgcolor='rgba(0,0,0,0)',
-                font=dict(size=12)
-            )
-            
-            fig_hashtag_impact.update_traces(
-                marker=dict(line=dict(width=2, color='white')),
-                selector=dict(mode='markers')
-            )
-            
-            st.plotly_chart(fig_hashtag_impact, use_container_width=True)
-            
-            # Add explanation
-            st.info("💡 **How to read this chart:** Larger bubbles = higher likes, warmer colors = more impressions, higher position = better engagement rate, further right = used more often")
-    else:
-        st.info("No hashtags found in your posts.")
 
     # Top mentions analysis with better styling
     mentions_counts = pd.Series([mention for sublist in tweets_sheet['mentions'] for mention in sublist]).value_counts().head(20)
@@ -886,9 +815,9 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
     
     # Categorize sentiment
     def categorize_sentiment(score):
-        if score > 0.3:
+        if score > 0.25:
             return "Positive"
-        elif score < -0.3:
+        elif score < -0.25:
             return "Negative"
         else:
             return "Neutral"
@@ -930,13 +859,14 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
     col1, col2 = st.columns([2, 1])
     
     with col1:
-        # Interactive sentiment distribution over time
+        # REFINEMENT 5: Sentiment time series without shadows/fills
         sentiment_over_time = tweets_sheet.groupby([tweets_sheet['Date'].dt.date, 'sentiment_category']).size().unstack(fill_value=0)
         
         if len(sentiment_over_time) > 0:
             fig_sentiment_time = go.Figure()
             
-            colors_sentiment = {'Positive': '#00D4AA', 'Neutral': '#FFA726', 'Negative': '#FF5252'}
+            # REFINEMENT 5: Updated colors and NO FILLS
+            colors_sentiment = {'Positive': '#2ca02c', 'Neutral': '#ffdd00', 'Negative': '#d62728'}
             
             for sentiment in ['Positive', 'Neutral', 'Negative']:
                 if sentiment in sentiment_over_time.columns:
@@ -945,9 +875,8 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
                         y=sentiment_over_time[sentiment],
                         mode='lines+markers',
                         name=sentiment,
-                        line=dict(color=colors_sentiment[sentiment], width=3),
-                        fill='tonexty' if sentiment != 'Positive' else 'tozeroy',
-                        fillcolor=f'rgba({int(colors_sentiment[sentiment][1:3], 16)}, {int(colors_sentiment[sentiment][3:5], 16)}, {int(colors_sentiment[sentiment][5:7], 16)}, 0.3)'
+                        line=dict(color=colors_sentiment[sentiment], width=3)
+                        # REFINEMENT 5: NO fill property - removed shadows
                     ))
             
             fig_sentiment_time.update_layout(
@@ -965,17 +894,26 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
     with col2:
         # Enhanced sentiment metrics
         sentiment_stats = tweets_sheet['sentiment_category'].value_counts()
-        
+        # Define color mapping for sentiments
+        color_mapping = {
+            'positive': '#00D4AA',  # Green
+            'neutral': '#FFA726',   # Yellow/Orange  
+            'negative': '#FF5252'   # Red
+        }
+
+        # Create colors list in the same order as sentiment_stats.index
+        colors = [color_mapping.get(sentiment.lower(), '#CCCCCC') for sentiment in sentiment_stats.index]
+
         # Create a donut chart instead of pie
         fig_sentiment_donut = go.Figure(data=[go.Pie(
             labels=sentiment_stats.index, 
             values=sentiment_stats.values,
             hole=0.5,
-            marker_colors=['#00D4AA', '#FFA726', '#FF5252'],
+            marker_colors=colors,  # Use the mapped colors
             textinfo='label+percent',
             textfont_size=12
         )])
-        
+
         fig_sentiment_donut.update_layout(
             title="🎯 Overall Sentiment Distribution",
             height=400,
@@ -983,7 +921,7 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)'
         )
-        
+
         # Add center text
         fig_sentiment_donut.add_annotation(
             text=f"Total<br>{len(tweets_sheet)}<br>Posts",
@@ -991,8 +929,10 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
             font_size=16,
             showarrow=False
         )
-        
+
         st.plotly_chart(fig_sentiment_donut, use_container_width=True)
+        
+        #st.plotly_chart(fig_sentiment_donut, use_container_width=True)
     
     # Word frequency visualization
     if len(word_freq) > 0:
@@ -1072,13 +1012,20 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
                 if not WORDCLOUD_AVAILABLE:
                     st.info("💡 **Enhanced word cloud available!** Install with: `pip install wordcloud matplotlib`")
     
-    # Sentiment vs Performance Analysis
+    # REFINEMENT 5: Sentiment vs Performance Analysis with fixed colors
     st.subheader("📊 How Sentiment Affects Performance")
     
     col1, col2 = st.columns(2)
     
+    # REFINEMENT 5: Define exact color mapping
+    sentiment_color_map = {
+        'Positive': '#2ca02c',  # Green
+        'Negative': '#d62728',  # Red
+        'Neutral': '#ffdd00'    # Yellow
+    }
+    
     with col1:
-        # Simplified sentiment performance analysis
+        # Sentiment performance analysis
         sentiment_performance = tweets_sheet.groupby('sentiment_category').agg({
             likes_col: 'mean',
             reposts_col: 'mean',
@@ -1087,15 +1034,15 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
             impressions_col: 'mean'
         }).reset_index()
         
-        # Create separate charts for clarity
+        # REFINEMENT 5: Use exact colors specified
         fig_sentiment_eng = px.bar(
             sentiment_performance, 
             x='sentiment_category', 
             y='engagement_rate',
             title="🎯 Engagement Rate by Sentiment",
             labels={'sentiment_category': 'Sentiment', 'engagement_rate': 'Avg Engagement Rate'},
-            color='engagement_rate',
-            color_continuous_scale='RdYlGn',
+            color='sentiment_category',
+            color_discrete_map=sentiment_color_map,
             text='engagement_rate'
         )
         
@@ -1103,8 +1050,8 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         fig_sentiment_eng.update_layout(
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            coloraxis_showscale=False,
-            height=400
+            height=400,
+            showlegend=False
         )
         
         st.plotly_chart(fig_sentiment_eng, use_container_width=True)
@@ -1112,15 +1059,15 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         st.info("📈 **How to read:** Higher bars = better engagement for that sentiment type")
     
     with col2:
-        # Average impressions by sentiment
+        # REFINEMENT 5: Average impressions by sentiment with exact colors
         fig_sentiment_imp = px.bar(
             sentiment_performance, 
             x='sentiment_category', 
             y=impressions_col,
             title="👁️ Average Impressions by Sentiment",
             labels={'sentiment_category': 'Sentiment'},
-            color=impressions_col,
-            color_continuous_scale='Blues',
+            color='sentiment_category',
+            color_discrete_map=sentiment_color_map,
             text=impressions_col
         )
         
@@ -1128,8 +1075,8 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         fig_sentiment_imp.update_layout(
             plot_bgcolor='rgba(0,0,0,0)',
             paper_bgcolor='rgba(0,0,0,0)',
-            coloraxis_showscale=False,
-            height=400
+            height=400,
+            showlegend=False
         )
         
         st.plotly_chart(fig_sentiment_imp, use_container_width=True)
@@ -1151,7 +1098,7 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         **Viral Potential Analysis** helps you understand what makes your content go viral and reach wider audiences.
         
         **How it works:**
-        - We define "viral" posts as those in the **top 10%** of impressions
+        - We define "viral" posts as those in the **top 10%** of a metric you choose on the checkbox (default -> #likes)
         - We then analyze what characteristics these high-performing posts share
         - This helps you replicate successful content patterns
         
@@ -1162,9 +1109,18 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         - **Viral Content Patterns**: What type of content performs best
         """)
     
+
+
+    # NEW: Allow user to select sorting parameter
+    sort_by_metric_2 = st.selectbox(
+        "Sort posts by:", 
+        options=metrics_options,
+        index=1,  # Default to likes
+        help="Choose which metric to use for ranking the top posts"
+    )
     # Define viral threshold (top 10% of impressions)
-    viral_threshold = tweets_sheet[impressions_col].quantile(0.9)
-    tweets_sheet['is_viral'] = tweets_sheet[impressions_col] >= viral_threshold
+    viral_threshold = tweets_sheet[sort_by_metric_2].quantile(0.9)
+    tweets_sheet['is_viral'] = tweets_sheet[sort_by_metric_2] >= viral_threshold
     
     viral_rate = tweets_sheet['is_viral'].mean()
     viral_posts_count = tweets_sheet['is_viral'].sum()
@@ -1197,7 +1153,7 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
     
     with col4:
         if viral_posts_count > 0:
-            max_impressions = tweets_sheet[impressions_col].max()
+            max_impressions = tweets_sheet[sort_by_metric].max()
             st.metric(
                 "🎯 Peak Impressions", 
                 f"{max_impressions:,.0f}",
@@ -1214,7 +1170,6 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
                 'tweet_length': 'mean',
                 'sentiment': 'mean',
                 'engagement_rate': 'mean',
-                'hashtags': lambda x: np.mean([len(tags) for tags in x]),
                 'mentions': lambda x: np.mean([len(mentions) for mentions in x]),
                 likes_col: 'mean',
                 reposts_col: 'mean'
@@ -1379,9 +1334,9 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         # Show top viral posts
         if viral_posts_count > 0:
             st.subheader("🏆 Your Top Viral Posts")
-            viral_posts = tweets_sheet[tweets_sheet['is_viral']].nlargest(5, impressions_col)
+            viral_posts = tweets_sheet[tweets_sheet['is_viral']].nlargest(5, sort_by_metric)
             
-            viral_display = viral_posts[['Date', post_text_col, impressions_col, likes_col, 'engagement_rate']].copy()
+            viral_display = viral_posts[['Date', post_text_col, sort_by_metric, 'engagement_rate']].copy()
             viral_display['Date'] = viral_display['Date'].dt.strftime('%Y-%m-%d')
             viral_display['engagement_rate'] = viral_display['engagement_rate'].apply(lambda x: f"{x:.2%}")
             viral_display[post_text_col] = viral_display[post_text_col].apply(lambda x: str(x)[:100] + "..." if len(str(x)) > 100 else str(x))
@@ -1392,8 +1347,8 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
         st.info("📊 **Need more data for viral analysis.** Keep posting consistently to build a robust viral potential analysis!")
         
         # Show potential viral posts (top 20% instead)
-        potential_threshold = tweets_sheet[impressions_col].quantile(0.8)
-        potential_viral = tweets_sheet[tweets_sheet[impressions_col] >= potential_threshold]
+        potential_threshold = tweets_sheet[sort_by_metric].quantile(0.8)
+        potential_viral = tweets_sheet[tweets_sheet[sort_by_metric] >= potential_threshold]
         
         if len(potential_viral) > 0:
             st.subheader("🌟 Your Best Performing Posts (Top 20%)")
@@ -1444,13 +1399,11 @@ if (account_analytics is not None) and (tweets_sheet is not None) :
                 st.success(f"""
                 **📈 Engagement Insights:**
                 - Average engagement rate: **{avg_engagement_rate:.2%}**
-                - Best performing hashtag: **{best_hashtag}**
                 """)
             else:
                 st.success(f"""
                 **📈 Engagement Insights:**
                 - Average engagement rate: **{avg_engagement_rate:.2%}**
-                - Best performing hashtag: **No hashtags found**
                 """)
             
             st.success(f"""
