@@ -15,14 +15,11 @@ import os
 # It typically starts with "G-".
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
 
-def inject_google_analytics():
+def inject_google_analytics_via_markdown():
     """
-    Injects the Google Analytics 4 (GA4) tracking code.
-    This function uses st.components.v1.html, which renders content within an iframe.
-    While generally robust, iframe embedding can sometimes affect GA tracking.
+    Injects the Google Analytics 4 (GA4) tracking code using st.markdown.
+    This method attempts to place the script directly into the main document.
     """
-    # Check if the Measurement ID exists and is not an empty string
-    # It's good practice to ensure it's not None or an empty string from the environment variable.
     if not GA_MEASUREMENT_ID or GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
         st.warning("Google Analytics tracking is not enabled. Please set the GA_MEASUREMENT_ID environment variable with your actual GA4 Measurement ID (e.g., G-XXXXXXXXXX).")
         return
@@ -38,13 +35,15 @@ def inject_google_analytics():
       gtag('config', '{GA_MEASUREMENT_ID}');
     </script>
     """
-    # Using height=0 makes the iframe invisible, which is suitable for analytics scripts.
-    components.html(ga_code, height=0)
+    # Use st.markdown with unsafe_allow_html=True to inject the script.
+    # This might place the script in the <body> of the main document.
+    st.markdown(ga_code, unsafe_allow_html=True)
 
 # --- Call the function to inject GA ---
 # This must be called at the very beginning of your Streamlit script
 # to ensure the GA tag is loaded as early as possible.
-inject_google_analytics()
+inject_google_analytics_via_markdown()
+
 
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
 
