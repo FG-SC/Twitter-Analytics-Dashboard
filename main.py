@@ -14,36 +14,44 @@ import os
 # It typically starts with "G-".
 # You can also get this from an environment variable for better security and deployment practices.
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID", "YOUR_GA_MEASUREMENT_ID")
+import streamlit as st
+import os
+import streamlit.components.v1 as components
+
+# --- Configuration ---
+# This correctly gets the ID from Streamlit's secrets
+GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
 
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
 
+def inject_google_analytics():
+    """
+    Injects the Google Analytics 4 (GA4) tracking code.
+    """
+    # Check if the Measurement ID exists and is not a placeholder
+    if not GA_MEASUREMENT_ID or GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
+        # Don't inject if the ID is not set
+        st.warning("Google Analytics tracking is not enabled. Please set the GA_MEASUREMENT_ID secret.")
+        return
 
-if GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
-    st.warning("Please replace 'YOUR_GA_MEASUREMENT_ID' with your actual Google Analytics 4 Measurement ID.")
-    st.info("You can also set it as an environment variable named `GA_MEASUREMENT_ID`.")
+    ga_code = f"""
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+      gtag('config', '{GA_MEASUREMENT_ID}');
+    </script>
+    """
+    components.html(ga_code, height=0)
 
+# --- Call the function to inject GA ---
+# This is the line you need to make sure is active
+inject_google_analytics()
 
-"""
-Injects the Google Analytics 4 (GA4) tracking code into the Streamlit app
-using st.components.v1.html().
-The height is set to 0 to make the component invisible.
-"""
-
-ga_code = f"""
-<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){{dataLayer.push(arguments);}}
-  gtag('js', new Date());
-
-  gtag('config', '{GA_MEASUREMENT_ID}');
-</script>
-"""
-# Use components.html to inject the raw HTML.
-# Setting height=0 makes it invisible, as it's just a script.
-components.html(ga_code, height=0)
-#st.success(f"Google Analytics (ID: {GA_MEASUREMENT_ID}) injected successfully!")
-
+# --- Your Streamlit App ---
+st.title("📊 Twitter Analytics Dashboard")
+# ... rest of your app code
 # --- Your Streamlit App ---
 
 # Call the injection function at the very beginning of your app script.
@@ -74,7 +82,6 @@ st.write("Welcome to my app!")
 # ... your app content ...
 
 # Main content
-st.title("📊 Twitter Analytics Dashboard")
 st.markdown("*Transform your Twitter data into actionable insights*")
 
 st.markdown("Made by [Felipe Gabriel](https://x.com/FelG_research), if you want to contribute, send me an [email](felipe.g.datascience@gmail.com) or a DM on my [LinkedIn](https://www.linkedin.com/in/felipe-gabriel0/)")
