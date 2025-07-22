@@ -23,30 +23,29 @@ if GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
     st.info("You can also set it as an environment variable named `GA_MEASUREMENT_ID`.")
 
 
-def inject_google_analytics():
-    """
-    Injects the Google Analytics 4 (GA4) tracking code into the Streamlit app
-    using st.components.v1.html().
-    The height is set to 0 to make the component invisible.
-    """
-    if GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID" or not GA_MEASUREMENT_ID:
-        # Don't inject if the ID is not set or is the placeholder
-        return
+"""
+Injects the Google Analytics 4 (GA4) tracking code into the Streamlit app
+using st.components.v1.html().
+The height is set to 0 to make the component invisible.
+"""
+if GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID" or not GA_MEASUREMENT_ID:
+    # Don't inject if the ID is not set or is the placeholder
+    return
 
-    ga_code = f"""
-    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){{dataLayer.push(arguments);}}
-      gtag('js', new Date());
+ga_code = f"""
+<script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){{dataLayer.push(arguments);}}
+  gtag('js', new Date());
 
-      gtag('config', '{GA_MEASUREMENT_ID}');
-    </script>
-    """
-    # Use components.html to inject the raw HTML.
-    # Setting height=0 makes it invisible, as it's just a script.
-    components.html(ga_code, height=0)
-    #st.success(f"Google Analytics (ID: {GA_MEASUREMENT_ID}) injected successfully!")
+  gtag('config', '{GA_MEASUREMENT_ID}');
+</script>
+"""
+# Use components.html to inject the raw HTML.
+# Setting height=0 makes it invisible, as it's just a script.
+components.html(ga_code, height=0)
+#st.success(f"Google Analytics (ID: {GA_MEASUREMENT_ID}) injected successfully!")
 
 # --- Your Streamlit App ---
 
@@ -71,9 +70,6 @@ except ImportError:
     WORDCLOUD_AVAILABLE = False
 
 # Set page config
-
-#inject_google_analytics()
-
 
 
 st.title("My Streamlit App")
