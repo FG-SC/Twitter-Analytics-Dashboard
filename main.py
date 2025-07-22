@@ -4,22 +4,15 @@ import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import re
-from textblob import TextBlob  # For sentiment analysis
+from textblob import TextBlob # For sentiment analysis
 import numpy as np
 import streamlit.components.v1 as components
 import os
 
 # --- Configuration ---
-# IMPORTANT: Replace 'YOUR_GA_MEASUREMENT_ID' with your actual Google Analytics 4 (GA4) Measurement ID.
+# IMPORTANT: Ensure your GA_MEASUREMENT_ID is correctly set as an environment variable
+# in your Streamlit deployment (e.g., Streamlit Cloud secrets).
 # It typically starts with "G-".
-# You can also get this from an environment variable for better security and deployment practices.
-GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID", "YOUR_GA_MEASUREMENT_ID")
-import streamlit as st
-import os
-import streamlit.components.v1 as components
-
-# --- Configuration ---
-# This correctly gets the ID from Streamlit's secrets
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
 
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
@@ -27,36 +20,39 @@ st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page
 def inject_google_analytics():
     """
     Injects the Google Analytics 4 (GA4) tracking code.
+    This function uses st.components.v1.html, which renders content within an iframe.
+    While generally robust, iframe embedding can sometimes affect GA tracking.
     """
-    # Check if the Measurement ID exists and is not a placeholder
+    # Check if the Measurement ID exists and is not an empty string
+    # It's good practice to ensure it's not None or an empty string from the environment variable.
     if not GA_MEASUREMENT_ID or GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
-        # Don't inject if the ID is not set
-        st.warning("Google Analytics tracking is not enabled. Please set the GA_MEASUREMENT_ID secret.")
+        st.warning("Google Analytics tracking is not enabled. Please set the GA_MEASUREMENT_ID environment variable with your actual GA4 Measurement ID (e.g., G-XXXXXXXXXX).")
         return
 
     ga_code = f"""
+    <!-- Google tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){{dataLayer.push(arguments);}}
       gtag('js', new Date());
+
       gtag('config', '{GA_MEASUREMENT_ID}');
     </script>
     """
+    # Using height=0 makes the iframe invisible, which is suitable for analytics scripts.
     components.html(ga_code, height=0)
 
 # --- Call the function to inject GA ---
-# This is the line you need to make sure is active
+# This must be called at the very beginning of your Streamlit script
+# to ensure the GA tag is loaded as early as possible.
 inject_google_analytics()
 
 # --- Your Streamlit App ---
 st.title("📊 Twitter Analytics Dashboard")
-# ... rest of your app code
-# --- Your Streamlit App ---
+st.markdown("*Transform your Twitter data into actionable insights*")
 
-# Call the injection function at the very beginning of your app script.
-# This ensures it runs whenever the app is loaded or re-executed.
-
+st.markdown("Made by [Felipe Gabriel](https://x.com/FelG_research), if you want to contribute, send me an [email](felipe.g.datascience@gmail.com) or a DM on my [LinkedIn](https://www.linkedin.com/in/felipe-gabriel0/)")
 
 # Optional imports for advanced features
 try:
@@ -74,18 +70,6 @@ try:
 except ImportError:
     WORDCLOUD_AVAILABLE = False
 
-# Set page config
-
-
-st.title("My Streamlit App")
-st.write("Welcome to my app!")
-# ... your app content ...
-
-# Main content
-st.markdown("*Transform your Twitter data into actionable insights*")
-
-st.markdown("Made by [Felipe Gabriel](https://x.com/FelG_research), if you want to contribute, send me an [email](felipe.g.datascience@gmail.com) or a DM on my [LinkedIn](https://www.linkedin.com/in/felipe-gabriel0/)")
-
 # Tutorial Section
 st.header("💼 How to use this dashboard?")
 
@@ -93,55 +77,55 @@ st.header("💼 How to use this dashboard?")
 with st.expander("📚 **Quick Start Guide - Click to expand**", expanded=True):
     st.markdown("""
     ### **Must have Premium/Professional Features!**
-    
+
     **Access Advanced Analytics:**
-    
+
     * Go to **Premium** section in sidebar → **Analytics**
     * More detailed metrics available
     * Longer historical data retention
-    
+
     #### **📥 Enhanced Export Options**
     * **Longer date ranges** (up to 1 year on overview)
     * **More detailed metrics** per tweet (on content)
     * **Video performance** data (being developed)
-    
+
     ---
-    
+
     ### **📋 Step-by-Step Data Download**
-    
-    #### **Step 1: Go to Premium Section** 
+
+    #### **Step 1: Go to Premium Section**
     * Click on **"Premium"** in your Twitter sidebar
-    
+
     #### **Step 2: Click Analytics**
     * In Premium section, click **"Analytics"**
-    
+
     #### **Step 3: Download Overview Data**
     * Go to **"Overview"** tab
-    * Select **"1Y"** (1 year) time interval  
+    * Select **"1Y"** (1 year) time interval
     * Click the **download button** (📥) in top-right corner
-    
+
     #### **Step 4: Download Content Data**
     * Go to **"Content"** tab
     * Select **"1Y"** (1 year) time interval
     * Click the **download button** (📥) in top-right corner
-    
+
     ---
-    
+
     ### **📂 Required Files for Dashboard**
-    
+
     **You'll need 2 CSV files:**
-    
+
     1. **`account_analytics_content_*.csv`** (Tweet-level data)
-       * Columns: Date, Tweet text, Impressions, Likes, Engagements, etc.
-    
-    2. **`account_overview_analytics_*.csv`** (Daily summary data)  
-       * Columns: Date, Total impressions, Total engagements, Followers, etc.
-    
+        * Columns: Date, Tweet text, Impressions, Likes, Engagements, etc.
+
+    2. **`account_overview_analytics_*.csv`** (Daily summary data)
+        * Columns: Date, Total impressions, Total engagements, Followers, etc.
+
     **Expected Column Names:**
     * **Portuguese:** `Data`, `Texto do post`, `Impressões`, `Curtidas`, `Engajamentos`
     * **English:** `Date`, `Post text`, `Impressions`, `Likes`, `Engagements`
     """)
-    
+
     # Success message
     st.success("🎉 **Once you have both CSV files, upload them below to start analyzing your Twitter performance!**")
 
