@@ -28,9 +28,6 @@ Injects the Google Analytics 4 (GA4) tracking code into the Streamlit app
 using st.components.v1.html().
 The height is set to 0 to make the component invisible.
 """
-if GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID" or not GA_MEASUREMENT_ID:
-    # Don't inject if the ID is not set or is the placeholder
-    return
 
 ga_code = f"""
 <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
