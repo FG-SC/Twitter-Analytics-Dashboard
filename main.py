@@ -15,8 +15,6 @@ import os
 # It typically starts with "G-".
 GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
 
-st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
-
 def inject_google_analytics():
     """
     Injects the Google Analytics 4 (GA4) tracking code.
@@ -47,6 +45,8 @@ def inject_google_analytics():
 # This must be called at the very beginning of your Streamlit script
 # to ensure the GA tag is loaded as early as possible.
 inject_google_analytics()
+
+st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", page_icon="📊")
 
 # --- Your Streamlit App ---
 st.title("📊 Twitter Analytics Dashboard")
