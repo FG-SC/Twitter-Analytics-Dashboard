@@ -62,7 +62,6 @@ def inject_google_analytics_via_markdown():
 # --- Call the function to inject GA ---
 # This must be called at the very beginning of your Streamlit script
 # to ensure the GA tag is loaded as early as possible.
-inject_google_analytics_via_markdown()
 
 # --- Custom CSS for modern UI ---
 st.markdown("""
@@ -152,6 +151,8 @@ if tweets_sheet_file is not None:
 
 # --- Main Dashboard ---
 if account_analytics is not None and tweets_sheet is not None:
+    inject_google_analytics_via_markdown()
+
     # --- Language and Column Name Handling ---
     if 'Curtidas' in tweets_sheet.columns:
         likes_col, impressions_col, engagements_col, reposts_col, replies_col, bookmarks_col, post_text_col = 'Curtidas', 'Impressões', 'Engajamentos', 'Compartilhamentos', 'Respostas', 'Itens salvos', 'Texto do post'
