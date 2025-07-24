@@ -29,6 +29,41 @@ except ImportError:
 st.set_page_config(page_title="Twitter Analytics Dashboard", layout="wide", 
                    page_icon="🐦")
 
+# --- Configuration ---
+# IMPORTANT: Ensure your GA_MEASUREMENT_ID is correctly set as an environment variable
+# in your Streamlit deployment (e.g., Streamlit Cloud secrets).
+# It typically starts with "G-".
+GA_MEASUREMENT_ID = os.environ.get("GA_MEASUREMENT_ID")
+
+def inject_google_analytics_via_markdown():
+    """
+    Injects the Google Analytics 4 (GA4) tracking code using st.markdown.
+    This method attempts to place the script directly into the main document.
+    """
+    if not GA_MEASUREMENT_ID or GA_MEASUREMENT_ID == "YOUR_GA_MEASUREMENT_ID":
+        st.warning("Google Analytics tracking is not enabled. Please set the GA_MEASUREMENT_ID environment variable with your actual GA4 Measurement ID (e.g., G-XXXXXXXXXX).")
+        return
+
+    ga_code = f"""
+    <!-- Google tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id={GA_MEASUREMENT_ID}"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){{dataLayer.push(arguments);}}
+      gtag('js', new Date());
+
+      gtag('config', '{GA_MEASUREMENT_ID}');
+    </script>
+    """
+    # Use st.markdown with unsafe_allow_html=True to inject the script.
+    # This might place the script in the <body> of the main document.
+    st.markdown(ga_code, unsafe_allow_html=True)
+
+# --- Call the function to inject GA ---
+# This must be called at the very beginning of your Streamlit script
+# to ensure the GA tag is loaded as early as possible.
+inject_google_analytics_via_markdown()
+
 # --- Custom CSS for modern UI ---
 st.markdown("""
 <style>
